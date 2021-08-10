@@ -1,11 +1,12 @@
 {
   "package": {
-    "name": "<packageName>",
-    "description": "<packageDescription>",
+    "name": "consys-solver",
+    "description": "consys-solver finds feasible models for consys constraints.",
     "keywords": [
-      "npm-template"
+      "consys",
+      "solver"
     ],
-    "repositoryURL": "https://github.com/FireboltCasters/npm-template.git",
+    "repositoryURL": "https://github.com/FireboltCasters/consys-solver.git",
     "author": "Steffen Droppelmann",
     "contributors": [
       {
