@@ -2,10 +2,7 @@
   "package": {
     "name": "consys-solver",
     "description": "consys-solver finds feasible models for consys constraints.",
-    "keywords": [
-      "consys",
-      "solver"
-    ],
+    "keywords": ["consys", "solver"],
     "repositoryURL": "https://github.com/FireboltCasters/consys-solver.git",
     "author": "Steffen Droppelmann",
     "contributors": [
