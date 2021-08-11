@@ -1,28 +1,39 @@
-import { ConstraintSystem } from "consys";
-import { ModelDomain } from "./domains/ModelDomain";
-import { Domain } from "./domains/Domain";
+import {ConstraintSystem} from 'consys';
+import {ModelDomain} from './domains/ModelDomain';
+import {Domain} from './domains/Domain';
 
-type FlatModelDomain = { [key: string]: Domain<any> };
-type ModelDomains = { [key: string]: { index: number, values: any[] } };
+type FlatModelDomain = {[key: string]: Domain<any>};
+type ModelDomains = {[key: string]: {index: number; values: any[]}};
 
 export default class Solver<M, S> {
-
   private readonly system: ConstraintSystem<M, S>;
   private readonly maxSteps: number;
   private lookAhead: number;
   private alpha: number = 0.2;
 
-  constructor(system: ConstraintSystem<M, S>, maxSteps: number = 10000, lookAhead?: number) {
+  constructor(
+    system: ConstraintSystem<M, S>,
+    maxSteps: number = 10000,
+    lookAhead?: number
+  ) {
     this.system = system;
     this.maxSteps = maxSteps;
     this.lookAhead = !!lookAhead ? lookAhead : -1;
   }
 
-  private static flattenModelDomain(modelDomain: ModelDomain, parent?: string, res: FlatModelDomain = {}): FlatModelDomain {
+  private static flattenModelDomain(
+    modelDomain: ModelDomain,
+    parent?: string,
+    res: FlatModelDomain = {}
+  ): FlatModelDomain {
     for (let key in modelDomain) {
-      let propertyName = parent ? parent + "." + key : key;
-      if (modelDomain[key]["kind"] !== "Domain") {
-        Solver.flattenModelDomain(modelDomain[key] as ModelDomain, propertyName, res);
+      let propertyName = parent ? parent + '.' + key : key;
+      if (modelDomain[key]['kind'] !== 'Domain') {
+        Solver.flattenModelDomain(
+          modelDomain[key] as ModelDomain,
+          propertyName,
+          res
+        );
       } else {
         res[propertyName] = modelDomain[key] as Domain<any>;
       }
@@ -36,14 +47,14 @@ export default class Solver<M, S> {
     Object.keys(flattened).map(key => {
       res[key] = {
         index: 0,
-        values: flattened[key].getPreferredValues()
+        values: flattened[key].getPreferredValues(),
       };
     });
     return res;
   }
 
   private static insertValue(object: any, key: string, value: any) {
-    let keys = key.split(".");
+    let keys = key.split('.');
     let obj = object;
     for (let i = 0; i < keys.length - 1; i++) {
       let currentKey = keys[i];
@@ -73,7 +84,9 @@ export default class Solver<M, S> {
    * @private
    */
   private getLogScore(model: M, state: S): number {
-    return 1.0 / (1.0 + this.system.getNumInconsistentConstraints(model, state));
+    return (
+      1.0 / (1.0 + this.system.getNumInconsistentConstraints(model, state))
+    );
   }
 
   private isModelConsistent(model: M, state: S): boolean {
@@ -86,7 +99,7 @@ export default class Solver<M, S> {
    * @param keyCounts key counts
    * @private
    */
-  private chooseKey(keyCounts: { [key: string]: number }): string {
+  private chooseKey(keyCounts: {[key: string]: number}): string {
     let keys = Object.keys(keyCounts);
 
     // To avoid local maximums and plateaus, choose completely random sometimes
@@ -108,16 +121,19 @@ export default class Solver<M, S> {
   private getNextValuesForKey(domains: ModelDomains, key: string): any[] {
     let currentIndex = domains[key].index;
     let currentValues = domains[key].values;
-    let start = Math.max(
-      0, currentIndex - (this.lookAhead / 2) | 0
-    );
+    let start = Math.max(0, (currentIndex - this.lookAhead / 2) | 0);
     let end = Math.min(
-      currentValues.length, currentIndex + (this.lookAhead / 2) | 0
+      currentValues.length,
+      (currentIndex + this.lookAhead / 2) | 0
     );
     return currentValues.slice(start, end);
   }
 
-  private getNextModels(domains: ModelDomains, key: string, nextValues: any[]): M[] {
+  private getNextModels(
+    domains: ModelDomains,
+    key: string,
+    nextValues: any[]
+  ): M[] {
     let res: M[] = [];
     for (let nextValue of nextValues) {
       let model = this.getCurrentModel(domains);
@@ -127,7 +143,11 @@ export default class Solver<M, S> {
     return res;
   }
 
-  private getNextBestModel(domains: ModelDomains, currentModel: M, state: S): M | null {
+  private getNextBestModel(
+    domains: ModelDomains,
+    currentModel: M,
+    state: S
+  ): M | null {
     let statisticsReport = this.system.evaluateStatistics(currentModel, state);
     let keyInfluences = statisticsReport.inconsistent.model;
     let nextKey = this.chooseKey(keyInfluences);
@@ -146,7 +166,6 @@ export default class Solver<M, S> {
   }
 
   private minConflicts(models: M[], state: S): M | null {
-
     // To avoid local maximums and plateaus, choose completely random sometimes
     if (Math.random() < this.alpha) {
       return Solver.chooseRandom(models);
@@ -184,23 +203,34 @@ export default class Solver<M, S> {
       this.alpha = Math.max(0, Math.min(alpha, 1));
     }
     console.log(
-      "consys-solver: Starting search with alpha: ", this.alpha,
-      ", lookAhead: ", this.lookAhead,
-      ", maxIterations: ", this.maxSteps
+      'consys-solver: Starting search with alpha: ',
+      this.alpha,
+      ', lookAhead: ',
+      this.lookAhead,
+      ', maxIterations: ',
+      this.maxSteps
     );
     let currentModel: M | null = this.getCurrentModel(domains);
     let iterations = 0;
     for (let i = 0; i < this.maxSteps; i++) {
       if (!!currentModel) {
         if (this.isModelConsistent(currentModel, state)) {
-          console.log("consys-solver: Found solution in ", iterations, " iterations");
+          console.log(
+            'consys-solver: Found solution in ',
+            iterations,
+            ' iterations'
+          );
           return currentModel;
         }
         currentModel = this.getNextBestModel(domains, currentModel, state);
       }
       iterations++;
     }
-    console.log("consys-solver: Found no solution in ", iterations, " iterations");
+    console.log(
+      'consys-solver: Found no solution in ',
+      iterations,
+      ' iterations'
+    );
     return null;
   }
 }

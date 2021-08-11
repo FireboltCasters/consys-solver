@@ -1,9 +1,7 @@
-
 export type PreferenceFunction<T> = (value: T) => number;
 
 export abstract class Domain<T> {
-
-  readonly kind: string = "Domain";
+  readonly kind: string = 'Domain';
 
   protected valuePreference: (value: T) => number;
 
@@ -17,5 +15,5 @@ export abstract class Domain<T> {
     });
   }
 
-  abstract getValues(): T[]
+  abstract getValues(): T[];
 }

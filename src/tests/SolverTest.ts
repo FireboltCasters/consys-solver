@@ -1,8 +1,8 @@
-import { ConstraintSystem } from "consys";
-import Solver from "../Solver";
-import Range from "../domains/Range";
-import Set from "../domains/Set";
-import Constant from "../domains/Constant";
+import {ConstraintSystem} from 'consys';
+import Solver from '../Solver';
+import Range from '../domains/Range';
+import Set from '../domains/Set';
+import Constant from '../domains/Constant';
 
 type Model = {
   name: string;
@@ -11,38 +11,40 @@ type Model = {
   absoluteMaxAge: number;
   details: {
     phone: number;
-  }
+  };
 };
 
 const system = new ConstraintSystem<Model, {}>();
 
-system.addFunction("STARTS_WITH", (string: string, prefix: string) => string.startsWith(prefix));
+system.addFunction('STARTS_WITH', (string: string, prefix: string) =>
+  string.startsWith(prefix)
+);
 
 system.addConstraint({
-  constraint: "ALWAYS: $age % 42 == 4 && $age != 0"
+  constraint: 'ALWAYS: $age % 42 == 4 && $age != 0',
 });
 
 system.addConstraint({
-  constraint: "ALWAYS: $age < $maxAge"
+  constraint: 'ALWAYS: $age < $maxAge',
 });
 
 system.addConstraint({
-  constraint: "ALWAYS: ($maxAge + $absoluteMaxAge) % 8 == 0"
+  constraint: 'ALWAYS: ($maxAge + $absoluteMaxAge) % 8 == 0',
 });
 
 system.addConstraint({
-  constraint: "ALWAYS: $age + $maxAge == $absoluteMaxAge"
+  constraint: 'ALWAYS: $age + $maxAge == $absoluteMaxAge',
 });
 
 system.addConstraint({
-  constraint: "ALWAYS: STARTS_WITH($name, 'N')"
+  constraint: "ALWAYS: STARTS_WITH($name, 'N')",
 });
 
 const solver = new Solver<Model, {}>(system, 10000);
 
 let modelHint = {
-  name: new Set(["Pete", "Nils", "Steffen", "Johann"], (name: string) => {
-    if (name.toLowerCase().startsWith("s")) {
+  name: new Set(['Pete', 'Nils', 'Steffen', 'Johann'], (name: string) => {
+    if (name.toLowerCase().startsWith('s')) {
       return 1;
     }
     return 0;
@@ -57,15 +59,13 @@ let modelHint = {
     return -value;
   }),
   details: {
-    phone: new Constant(40343)
-  }
-}
+    phone: new Constant(40343),
+  },
+};
 
-test("SolverTest", () => {
-
+test('SolverTest', () => {
   let one = solver.find(modelHint, {}, 0.2);
-  console.log("Found model: ", one);
-
+  console.log('Found model: ', one);
 
   expect(() => {
     throw Error();

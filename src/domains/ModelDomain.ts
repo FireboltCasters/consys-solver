@@ -1,5 +1,5 @@
-import { Domain } from "./Domain";
+import {Domain} from './Domain';
 
 export interface ModelDomain {
-  [key: string]: Domain<any> | ModelDomain
+  [key: string]: Domain<any> | ModelDomain;
 }
