@@ -18,8 +18,7 @@
     "upload": "npm version patch && npm run _uploadWithoutPatch",
     "clean": "rimraf ./build && gts clean",
     "lint": "gts lint",
-    "fix": "gts fix",
-    "setup": "node setup.js && rimraf setup.js setup.json"
+    "fix": "gts fix"
   },
   "repository": {
     "type": "git",
@@ -48,6 +47,7 @@
   },
   "homepage": "https://github.com/FireboltCasters/consys-solver#readme",
   "devDependencies": {
+    "@babel/preset-typescript": "^7.14.5",
     "@types/jest": "^26.0.23",
     "@types/node": "^16.0.0",
     "gts": "^3.1.0",
@@ -59,6 +59,6 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@babel/preset-typescript": "^7.14.5"
+    "consys": "^1.0.12"
   }
 }

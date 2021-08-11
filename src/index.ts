@@ -1,4 +1,6 @@
 /* istanbul ignore file */
-import Example from "./Example";
+import Solver from "./Solver";
+import Range from "./domains/Range";
 
-export { Example };
+export {Solver};
+export {Range};

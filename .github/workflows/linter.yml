@@ -14,7 +14,7 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
+      - name: SearchSet up Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 12
@@ -37,7 +37,7 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-      - name: Set up Node.js
+      - name: SearchSet up Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 12
