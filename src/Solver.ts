@@ -202,6 +202,12 @@ export default class Solver<M, S> {
     return bestModel.model;
   }
 
+  /**
+   * Chooses a random element from array.
+   *
+   * @param values array
+   * @private
+   */
   private static chooseRandom<T>(values: T[]): T {
     return values[Math.floor(Math.random() * values.length)];
   }
