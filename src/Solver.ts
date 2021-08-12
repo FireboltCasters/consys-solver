@@ -79,7 +79,7 @@ export default class Solver<M, S> {
   private static getModelDomains(modelDomain: ModelDomain): ModelDomains {
     let flattened = Solver.flattenModelDomain(modelDomain);
     let res: ModelDomains = {};
-    Object.keys(flattened).map(key => {
+    Object.keys(flattened).forEach(key => {
       res[key] = {
         index: 0,
         values: flattened[key].getValues(),
