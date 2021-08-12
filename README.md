@@ -19,16 +19,16 @@
 <p align="center">
   <a href="https://github.com/FireboltCasters/consys-solver/actions/workflows/npmPublish.yml"><img src="https://github.com/FireboltCasters/consys-solver/actions/workflows/npmPublish.yml/badge.svg" alt="Npm publish" /></a>
   <a href="https://github.com/FireboltCasters/consys-solver/actions/workflows/linter.yml"><img src="https://github.com/FireboltCasters/consys-solver/actions/workflows/linter.yml/badge.svg" alt="Build status" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=alert_status" alt="Quality Gate" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=bugs" alt="Bugs" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=coverage" alt="Coverage" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=code_smells" alt="Code Smells" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=duplicated_lines_density" alt="Duplicated Lines (%)" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=sqale_rating" alt="Maintainability Rating" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=reliability_rating" alt="Reliability Rating" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=security_rating" alt="Security Rating" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=sqale_index" alt="Technical Debt" /></a>
-  <a href="https://sonarcloud.io/dashboard?id=ExampleKey"><img src="https://sonarcloud.io/api/project_badges/measure?project=ExampleKey&metric=vulnerabilities" alt="Vulnerabilities" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=alert_status" alt="Quality Gate" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=bugs" alt="Bugs" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=coverage" alt="Coverage" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=code_smells" alt="Code Smells" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=duplicated_lines_density" alt="Duplicated Lines (%)" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=sqale_rating" alt="Maintainability Rating" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=reliability_rating" alt="Reliability Rating" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=security_rating" alt="Security Rating" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=sqale_index" alt="Technical Debt" /></a>
+  <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=vulnerabilities" alt="Vulnerabilities" /></a>
 </p>
 
 <p align="center">

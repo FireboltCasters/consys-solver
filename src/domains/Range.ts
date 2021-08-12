@@ -7,8 +7,8 @@ export default class Range extends Domain<number> {
   private readonly end: number;
   private readonly step: number;
 
-  constructor(start: number, end: number, step: number, preferenceFunction?: PreferenceFunction<number>) {
-    super(preferenceFunction);
+  constructor(start: number, end: number, step: number, preference?: PreferenceFunction<number>) {
+    super(preference);
     this.start = Math.min(start, end);
     this.end = Math.max(start, end);
     this.step = Math.abs(step);

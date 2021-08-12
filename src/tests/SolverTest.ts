@@ -19,7 +19,7 @@ const system = new ConstraintSystem<Model, {}>();
 system.addFunction("STARTS_WITH", (string: string, prefix: string) => string.startsWith(prefix));
 
 system.addConstraint({
-  constraint: "ALWAYS: $age % 42 == 4 && $age != 0"
+  constraint: "ALWAYS: $age % 5 == 0 && $age != 0"
 });
 
 system.addConstraint({
@@ -38,7 +38,7 @@ system.addConstraint({
   constraint: "ALWAYS: STARTS_WITH($name, 'N')"
 });
 
-const solver = new Solver<Model, {}>(system, 10000);
+const solver = new Solver<Model, {}>(system);
 
 let modelHint = {
   name: new Set(["Pete", "Nils", "Steffen", "Johann"], (name: string) => {
@@ -48,10 +48,12 @@ let modelHint = {
     return 0;
   }),
   age: new Range(0, 100, 0.5, (value: number) => {
-    return value;
+    if (value === 10) return 10;
+    return 1;
   }),
   maxAge: new Range(0, 100, 0.5, (value: number) => {
-    return -value;
+    if (value === 11) return 10;
+    return 1;
   }),
   absoluteMaxAge: new Range(0, 100, 0.5, (value: number) => {
     return -value;
@@ -63,9 +65,31 @@ let modelHint = {
 
 test("SolverTest", () => {
 
-  let one = solver.find(modelHint, {}, 0.2);
-  console.log("Found model: ", one);
+  let one = solver.find(10, modelHint, {}, {
+    maxIterations: 10000,
+    randomnessFactor: 0.2,
+    preferenceFactor: 0.5
+  });
+  console.log("Found models: ", one);
 
+  // let keys = {
+  //   a: 0,
+  //   b: 1,
+  //   c: 0,
+  //   d: 2
+  // }
+  //
+  // let res: { [key: string]: number } = {};
+  //
+  // for (let i = 0; i < 1000; i++) {
+  //   let key = solver.chooseKey(keys);
+  //   if (!res[key]) {
+  //     res[key] = 0;
+  //   }
+  //   res[key]++;
+  // }
+  //
+  // console.log("res: ", res);
 
   expect(() => {
     throw Error();

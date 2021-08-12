@@ -3,6 +3,8 @@ export type PreferenceFunction<T> = (value: T) => number;
 
 export abstract class Domain<T> {
 
+  static readonly maxPreference = 10;
+
   readonly kind: string = "Domain";
 
   protected valuePreference: (value: T) => number;
@@ -11,10 +13,8 @@ export abstract class Domain<T> {
     this.valuePreference = valuePreference;
   }
 
-  getPreferredValues(): T[] {
-    return this.getValues().sort((a: T, b: T) => {
-      return this.valuePreference(b) - this.valuePreference(a);
-    });
+  getPreferenceValue(element: T): number {
+    return Math.max(0, Math.min(this.valuePreference(element), Domain.maxPreference));
   }
 
   abstract getValues(): T[]

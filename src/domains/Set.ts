@@ -5,8 +5,8 @@ export default class Set<T> extends Domain<T> {
 
   private readonly values: T[];
 
-  constructor(values: T[], preferenceFunction?: PreferenceFunction<T>) {
-    super(preferenceFunction);
+  constructor(values: T[], preference?: PreferenceFunction<T>) {
+    super(preference);
     this.values = values.filter((value: T, index: number) => {
       return values.indexOf(value) === index;
     });
