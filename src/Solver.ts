@@ -1,6 +1,7 @@
 import {ConstraintSystem} from 'consys';
 import {ModelDomain} from './domains/ModelDomain';
 import {Domain} from './domains/Domain';
+import RandomNumberGenerator from "./ignoreCoverage/RandomNumberGenerator";
 
 type FlatModelDomain = {[key: string]: Domain<any>};
 type ModelDomains = {
@@ -132,7 +133,7 @@ export default class Solver<M, S> {
 
   private static shuffle<T>(array: T[]) {
     for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(RandomNumberGenerator.getValue() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
   }
@@ -150,7 +151,7 @@ export default class Solver<M, S> {
     let totalCount =
       Object.values(keyCounts).reduce((a, b) => a + b) +
       laplaceAlpha * keys.length;
-    let target = Math.random() * (totalCount - 1) + 1;
+    let target = RandomNumberGenerator.getValue() * (totalCount - 1) + 1;
     for (let key of keys) {
       let count = keyCounts[key] + laplaceAlpha;
       if (target <= count) {
@@ -248,7 +249,7 @@ export default class Solver<M, S> {
    * @private
    */
   private static chooseRandom<T>(values: T[]): T {
-    return values[Math.floor(Math.random() * values.length)];
+    return values[Math.floor(RandomNumberGenerator.getValue() * values.length)];
   }
 
   private minConflicts(
@@ -256,7 +257,7 @@ export default class Solver<M, S> {
     state: S
   ): {preference: number; model: M} | null {
     // To avoid local maximums and plateaus, choose completely random sometimes
-    if (Math.random() < this.config.randomnessFactor) {
+    if (RandomNumberGenerator.getValue() < this.config.randomnessFactor) {
       return Solver.chooseRandom(models);
     }
 
