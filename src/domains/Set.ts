@@ -1,8 +1,6 @@
-import { Domain, PreferenceFunction } from "./Domain";
-
+import {Domain, PreferenceFunction} from './Domain';
 
 export default class Set<T> extends Domain<T> {
-
   private readonly values: T[];
 
   constructor(values: T[], preference?: PreferenceFunction<T>) {
