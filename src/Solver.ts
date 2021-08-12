@@ -1,9 +1,15 @@
-import { ConstraintSystem } from "consys";
-import { ModelDomain } from "./domains/ModelDomain";
-import { Domain } from "./domains/Domain";
+import {ConstraintSystem} from 'consys';
+import {ModelDomain} from './domains/ModelDomain';
+import {Domain} from './domains/Domain';
 
-type FlatModelDomain = { [key: string]: Domain<any> };
-type ModelDomains = { [key: string]: { index: number, values: any[], preference: (element: any) => number } };
+type FlatModelDomain = {[key: string]: Domain<any>};
+type ModelDomains = {
+  [key: string]: {
+    index: number;
+    values: any[];
+    preference: (element: any) => number;
+  };
+};
 
 export interface SolverConfig {
   maxIterations?: number;
@@ -13,13 +19,12 @@ export interface SolverConfig {
 }
 
 export default class Solver<M, S> {
-
   private readonly system: ConstraintSystem<M, S>;
   private readonly config = {
     maxIterations: 10000,
     lookAheadModels: -1,
     randomnessFactor: 0.1,
-    preferenceFactor: 0.2
+    preferenceFactor: 0.2,
   };
 
   constructor(system: ConstraintSystem<M, S>, config?: SolverConfig) {
@@ -37,18 +42,32 @@ export default class Solver<M, S> {
       this.config.lookAheadModels = Math.max(0, config.lookAheadModels);
     }
     if (config.randomnessFactor !== undefined) {
-      this.config.randomnessFactor = Math.max(0, Math.min(config.randomnessFactor, 1));
+      this.config.randomnessFactor = Math.max(
+        0,
+        Math.min(config.randomnessFactor, 1)
+      );
     }
     if (config.preferenceFactor !== undefined) {
-      this.config.preferenceFactor = Math.max(0, Math.min(config.preferenceFactor, 1));
+      this.config.preferenceFactor = Math.max(
+        0,
+        Math.min(config.preferenceFactor, 1)
+      );
     }
   }
 
-  private static flattenModelDomain(modelDomain: ModelDomain, parent?: string, res: FlatModelDomain = {}): FlatModelDomain {
+  private static flattenModelDomain(
+    modelDomain: ModelDomain,
+    parent?: string,
+    res: FlatModelDomain = {}
+  ): FlatModelDomain {
     for (let key in modelDomain) {
-      let propertyName = parent ? parent + "." + key : key;
-      if (modelDomain[key]["kind"] !== "Domain") {
-        Solver.flattenModelDomain(modelDomain[key] as ModelDomain, propertyName, res);
+      let propertyName = parent ? parent + '.' + key : key;
+      if (modelDomain[key]['kind'] !== 'Domain') {
+        Solver.flattenModelDomain(
+          modelDomain[key] as ModelDomain,
+          propertyName,
+          res
+        );
       } else {
         res[propertyName] = modelDomain[key] as Domain<any>;
       }
@@ -65,14 +84,14 @@ export default class Solver<M, S> {
         values: flattened[key].getValues(),
         preference: (element: any) => {
           return flattened[key].getPreferenceValue(element);
-        }
+        },
       };
     });
     return res;
   }
 
   private static insertValue(object: any, key: string, value: any) {
-    let keys = key.split(".");
+    let keys = key.split('.');
     let obj = object;
     for (let i = 0; i < keys.length - 1; i++) {
       let currentKey = keys[i];
@@ -102,7 +121,9 @@ export default class Solver<M, S> {
    * @private
    */
   private getLogScore(model: M, state: S): number {
-    return 1.0 / (1.0 + this.system.getNumInconsistentConstraints(model, state));
+    return (
+      1.0 / (1.0 + this.system.getNumInconsistentConstraints(model, state))
+    );
   }
 
   private isModelConsistent(model: M, state: S): boolean {
@@ -122,13 +143,14 @@ export default class Solver<M, S> {
    * @param keyCounts key counts
    * @private
    */
-  chooseKey(keyCounts: { [key: string]: number }): string {
+  chooseKey(keyCounts: {[key: string]: number}): string {
     const laplaceAlpha = 0.1;
     let keys = Object.keys(keyCounts);
     Solver.shuffle(keys);
-    let totalCount = Object.values(keyCounts)
-      .reduce((a, b) => a + b) + laplaceAlpha * keys.length;
-    let target = (Math.random() * (totalCount - 1)) + 1;
+    let totalCount =
+      Object.values(keyCounts).reduce((a, b) => a + b) +
+      laplaceAlpha * keys.length;
+    let target = Math.random() * (totalCount - 1) + 1;
     for (let key of keys) {
       let count = keyCounts[key] + laplaceAlpha;
       if (target <= count) {
@@ -143,10 +165,12 @@ export default class Solver<M, S> {
     let currentIndex = domains[key].index;
     let currentValues = domains[key].values;
     let start = Math.max(
-      0, currentIndex - Math.floor(this.config.lookAheadModels / 2)
+      0,
+      currentIndex - Math.floor(this.config.lookAheadModels / 2)
     );
     let end = Math.min(
-      currentValues.length, currentIndex + Math.floor(this.config.lookAheadModels / 2)
+      currentValues.length,
+      currentIndex + Math.floor(this.config.lookAheadModels / 2)
     );
     return currentValues.slice(start, end);
   }
@@ -173,27 +197,42 @@ export default class Solver<M, S> {
     return false;
   }
 
-  private getNextModels(solutions: M[], domains: ModelDomains, key: string, nextValues: any[]): { preference: number, model: M }[] {
-    let res: { preference: number, model: M }[] = [];
+  private getNextModels(
+    solutions: M[],
+    domains: ModelDomains,
+    key: string,
+    nextValues: any[]
+  ): {preference: number; model: M}[] {
+    let res: {preference: number; model: M}[] = [];
     for (let nextValue of nextValues) {
       let model = this.getCurrentModel(domains);
       Solver.insertValue(model, key, nextValue);
       if (!this.isModelInSolutions(solutions, model)) {
         res.push({
           preference: domains[key].preference(nextValue),
-          model: model
+          model: model,
         });
       }
     }
     return res;
   }
 
-  private getNextBestModel(solutions: M[], domains: ModelDomains, currentModel: M, state: S): M | null {
+  private getNextBestModel(
+    solutions: M[],
+    domains: ModelDomains,
+    currentModel: M,
+    state: S
+  ): M | null {
     let statisticsReport = this.system.evaluateStatistics(currentModel, state);
     let keyInfluences = statisticsReport.inconsistent.model;
     let nextKey = this.chooseKey(keyInfluences);
     let nextValuesForKey = this.getNextValuesForKey(domains, nextKey);
-    let nextModels = this.getNextModels(solutions, domains, nextKey, nextValuesForKey);
+    let nextModels = this.getNextModels(
+      solutions,
+      domains,
+      nextKey,
+      nextValuesForKey
+    );
     let bestModel = this.minConflicts(nextModels, state);
     if (!bestModel) {
       return null;
@@ -206,18 +245,22 @@ export default class Solver<M, S> {
     return values[Math.floor(Math.random() * values.length)];
   }
 
-  private minConflicts(models: { preference: number, model: M }[], state: S): { preference: number, model: M } | null {
-
+  private minConflicts(
+    models: {preference: number; model: M}[],
+    state: S
+  ): {preference: number; model: M} | null {
     // To avoid local maximums and plateaus, choose completely random sometimes
     if (Math.random() < this.config.randomnessFactor) {
       return Solver.chooseRandom(models);
     }
 
-    let bestModel: { preference: number, model: M } | null = null;
+    let bestModel: {preference: number; model: M} | null = null;
     let bestScore: number = 0;
     for (let instance of models) {
       let score = this.getLogScore(instance.model, state);
-      score += (instance.preference / Domain.maxPreference) * this.config.preferenceFactor;
+      score +=
+        (instance.preference / Domain.maxPreference) *
+        this.config.preferenceFactor;
       if (score > bestScore) {
         bestScore = score;
         bestModel = instance;
@@ -237,7 +280,12 @@ export default class Solver<M, S> {
     return maxLength * 2;
   }
 
-  find(maxSolutions: number, modelDomain: ModelDomain, state: S, config?: SolverConfig): M[] {
+  find(
+    maxSolutions: number,
+    modelDomain: ModelDomain,
+    state: S,
+    config?: SolverConfig
+  ): M[] {
     if (!!config) {
       this.initConfig(config);
     }
@@ -246,7 +294,7 @@ export default class Solver<M, S> {
       this.config.lookAheadModels = Solver.getMaxLookAhead(domains);
     }
     let max = Math.max(1, maxSolutions);
-    console.log("consys-solver: Starting search with config: ", this.config);
+    console.log('consys-solver: Starting search with config: ', this.config);
     let res: M[] = [];
     let currentModel: M | null = this.getCurrentModel(domains);
     let iterations = 0;
@@ -260,8 +308,11 @@ export default class Solver<M, S> {
       iterations++;
     }
     console.log(
-      "consys-solver: Found ", res.length,
-      " solution(s) after ", iterations, " iterations"
+      'consys-solver: Found ',
+      res.length,
+      ' solution(s) after ',
+      iterations,
+      ' iterations'
     );
     return res;
   }
