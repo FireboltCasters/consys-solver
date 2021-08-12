@@ -1,7 +1,7 @@
 import {ConstraintSystem} from 'consys';
 import {ModelDomain} from './domains/ModelDomain';
 import {Domain} from './domains/Domain';
-import RandomNumberGenerator from "./ignoreCoverage/RandomNumberGenerator";
+import RandomNumberGenerator from './ignoreCoverage/RandomNumberGenerator';
 
 type FlatModelDomain = {[key: string]: Domain<any>};
 type ModelDomains = {
