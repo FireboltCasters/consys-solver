@@ -59,7 +59,6 @@ export interface SolverConfig {
  * domains.
  */
 export default class Solver<M, S> {
-
   // initial constraint system
   private readonly system: ConstraintSystem<M, S>;
 
@@ -92,16 +91,10 @@ export default class Solver<M, S> {
    */
   private initConfig(config: SolverConfig) {
     if (config.maxIterations !== undefined) {
-      this.config.maxIterations = Math.max(
-        0,
-        config.maxIterations
-      );
+      this.config.maxIterations = Math.max(0, config.maxIterations);
     }
     if (config.lookAheadModels !== undefined) {
-      this.config.lookAheadModels = Math.max(
-        0,
-        config.lookAheadModels
-      );
+      this.config.lookAheadModels = Math.max(0, config.lookAheadModels);
     } else {
       this.config.lookAheadModels = -1;
     }
@@ -267,7 +260,6 @@ export default class Solver<M, S> {
    * @private
    */
   chooseKey(keyCounts: {[key: string]: number}): string {
-
     // apply laplace smoothing, since counts can be 0
     const laplaceAlpha = 0.1;
 
@@ -436,7 +428,6 @@ export default class Solver<M, S> {
     models: {preference: number; model: M}[],
     state: S
   ): {preference: number; model: M} | null {
-
     // To avoid local maximums and plateaus, choose completely random sometimes
     if (RandomUtils.unsignedFloat() < this.config.randomnessFactor) {
       return Solver.chooseRandom(models);
@@ -447,7 +438,6 @@ export default class Solver<M, S> {
 
     // choose the model with the best score
     for (let instance of models) {
-
       // calculate score based on number of conflicts
       let score = this.getLogScore(instance.model, state);
 
@@ -468,7 +458,7 @@ export default class Solver<M, S> {
    * Returns the maximum look ahead value based on the size of the largest
    * domain.
    *
-    * @param domains model domains
+   * @param domains model domains
    * @private
    */
   private static getMaxLookAhead(domains: ModelDomains): number {
@@ -496,7 +486,7 @@ export default class Solver<M, S> {
     modelDomain: ModelDomain,
     state: S,
     config?: SolverConfig
-  ): { iterations: number, solutions: M[] } {
+  ): {iterations: number; solutions: M[]} {
     if (!!config) {
       this.initConfig(config);
     }
@@ -528,7 +518,7 @@ export default class Solver<M, S> {
     }
     return {
       iterations: iterations,
-      solutions: res
+      solutions: res,
     };
   }
 

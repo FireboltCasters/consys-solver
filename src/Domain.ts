@@ -8,7 +8,6 @@ export type PreferenceFunction<T> = (value: T) => number;
  * Represents an abstract domain for the solver.
  */
 export default abstract class Domain<T> {
-
   // maximum preference value
   static readonly maxPreference = 10;
 
