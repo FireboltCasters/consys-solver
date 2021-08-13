@@ -1,9 +1,15 @@
 import {ConstraintSystem} from 'consys';
-import {ModelDomain} from './domains/ModelDomain';
-import {Domain} from './domains/Domain';
-import RandomNumberGenerator from './ignoreCoverage/RandomNumberGenerator';
+import Domain from './Domain';
+import RandomUtils from './ignoreCoverage/RandomUtils';
 
+/**
+ * Map of model keys to their domains, with keys flattened.
+ */
 type FlatModelDomain = {[key: string]: Domain<any>};
+
+/**
+ * Map of model keys to domain data.
+ */
 type ModelDomains = {
   [key: string]: {
     index: number;
@@ -12,6 +18,35 @@ type ModelDomains = {
   };
 };
 
+/**
+ * Model domain object. Should have the same keys as the result model, which
+ * each key having a specific domain to be searched for a solution.
+ */
+export interface ModelDomain {
+  [key: string]: Domain<any> | ModelDomain;
+}
+
+/**
+ * Solver configuration.
+ *
+ * @param maxIterations Maximum number of iterations until the algorithm stops.
+ * The default number is 10000 iterations.
+ *
+ * @param lookAheadModels Determines how many models should be considered for
+ * the next iteration. Set to the maximum domain size by default.
+ *
+ * @param randomnessFactor Value between 0.0 and 1.0, determines how often the
+ * algorithm chooses a random model for the next iteration. A value of 0.0
+ * means that it never chooses randomly, and a value of 1.0 means it always
+ * chooses randomly. This is useful to avoid local extrema and plateaus.
+ * The default value is 0.3.
+ *
+ * @param preferenceFactor Value between 0.0 and 1.0, determines how much the
+ * domain preference value is weighted when choosing the model for the next
+ * iteration. A value of 0.0 means that preferences are not considered, whereas
+ * a value of 1.0 means that they heavily influence the decision. The default
+ * value is 0.1.
+ */
 export interface SolverConfig {
   maxIterations?: number;
   lookAheadModels?: number;
@@ -19,15 +54,29 @@ export interface SolverConfig {
   preferenceFactor?: number;
 }
 
+/**
+ * Solver class, used to find solutions for a specific set of constraints and
+ * domains.
+ */
 export default class Solver<M, S> {
+
+  // initial constraint system
   private readonly system: ConstraintSystem<M, S>;
+
+  // default configuration
   private readonly config = {
     maxIterations: 10000,
     lookAheadModels: -1,
-    randomnessFactor: 0.1,
-    preferenceFactor: 0.2,
+    randomnessFactor: 0.3,
+    preferenceFactor: 0.1,
   };
 
+  /**
+   * Create a new solver instance for a given constraint system and config.
+   *
+   * @param system constraint system
+   * @param config configuration
+   */
   constructor(system: ConstraintSystem<M, S>, config?: SolverConfig) {
     this.system = system;
     if (!!config) {
@@ -35,12 +84,26 @@ export default class Solver<M, S> {
     }
   }
 
+  /**
+   * Initializes parameters based on the given config.
+   *
+   * @param config configuration
+   * @private
+   */
   private initConfig(config: SolverConfig) {
     if (config.maxIterations !== undefined) {
-      this.config.maxIterations = Math.max(0, config.maxIterations);
+      this.config.maxIterations = Math.max(
+        0,
+        config.maxIterations
+      );
     }
     if (config.lookAheadModels !== undefined) {
-      this.config.lookAheadModels = Math.max(0, config.lookAheadModels);
+      this.config.lookAheadModels = Math.max(
+        0,
+        config.lookAheadModels
+      );
+    } else {
+      this.config.lookAheadModels = -1;
     }
     if (config.randomnessFactor !== undefined) {
       this.config.randomnessFactor = Math.max(
@@ -56,6 +119,15 @@ export default class Solver<M, S> {
     }
   }
 
+  /**
+   * Flatten a model domain object to have keys as strings, seperated by a dot
+   * if the key is nested.
+   *
+   * @param modelDomain initial domain object
+   * @param parent parent key
+   * @param res result map
+   * @private
+   */
   private static flattenModelDomain(
     modelDomain: ModelDomain,
     parent?: string,
@@ -76,6 +148,12 @@ export default class Solver<M, S> {
     return res;
   }
 
+  /**
+   * Creates a model domains object with domain values and current search index.
+   *
+   * @param modelDomain model domain
+   * @private
+   */
   private static getModelDomains(modelDomain: ModelDomain): ModelDomains {
     let flattened = Solver.flattenModelDomain(modelDomain);
     let res: ModelDomains = {};
@@ -91,6 +169,15 @@ export default class Solver<M, S> {
     return res;
   }
 
+  /**
+   * Inserts a value into an object. Key is a dot separated string, which will
+   * result in a nested value.
+   *
+   * @param object object where value should be inserted
+   * @param key key of the value
+   * @param value value to be inserted
+   * @private
+   */
   private static insertValue(object: any, key: string, value: any) {
     let keys = key.split('.');
     let obj = object;
@@ -105,6 +192,27 @@ export default class Solver<M, S> {
     obj[lastKey] = value;
   }
 
+  /**
+   * Randomizes the current search index of each domain.
+   *
+   * @param modelDomains model domains
+   * @private
+   */
+  private static randomizeModel(modelDomains: ModelDomains) {
+    for (let key of Object.keys(modelDomains)) {
+      let domain = modelDomains[key];
+      domain.index = Math.floor(
+        RandomUtils.unsignedFloat() * domain.values.length
+      );
+    }
+  }
+
+  /**
+   * Creates a new model object from the values of the current search indices.
+   *
+   * @param modelDomains model domains
+   * @private
+   */
   private getCurrentModel(modelDomains: ModelDomains): M {
     let res = {};
     for (let key of Object.keys(modelDomains)) {
@@ -115,7 +223,8 @@ export default class Solver<M, S> {
   }
 
   /**
-   * Calculates a logarithmic score between 0 (bad) and 1 (perfect) for a given model and state.
+   * Calculates a logarithmic score between 0 (bad) and 1 (perfect) for a given
+   * model and state.
    *
    * @param model model instance
    * @param state state instance
@@ -127,13 +236,26 @@ export default class Solver<M, S> {
     );
   }
 
+  /**
+   * Checks if a model is consistent with a given state.
+   *
+   * @param model model to be checked
+   * @param state state to be checked
+   * @private
+   */
   private isModelConsistent(model: M, state: S): boolean {
     return this.system.getNumInconsistentConstraints(model, state) === 0;
   }
 
+  /**
+   * Shuffles an array of values.
+   *
+   * @param array array to be shuffled
+   * @private
+   */
   private static shuffle<T>(array: T[]) {
     for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(RandomNumberGenerator.getValue() * (i + 1));
+      const j = Math.floor(RandomUtils.unsignedFloat() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
   }
@@ -145,13 +267,20 @@ export default class Solver<M, S> {
    * @private
    */
   chooseKey(keyCounts: {[key: string]: number}): string {
+
+    // apply laplace smoothing, since counts can be 0
     const laplaceAlpha = 0.1;
+
     let keys = Object.keys(keyCounts);
     Solver.shuffle(keys);
+
     let totalCount =
       Object.values(keyCounts).reduce((a, b) => a + b) +
       laplaceAlpha * keys.length;
-    let target = RandomNumberGenerator.getValue() * (totalCount - 1) + 1;
+
+    // random value between 1 and total amount of keys
+    let target = RandomUtils.unsignedFloat() * (totalCount - 1) + 1;
+
     for (let key of keys) {
       let count = keyCounts[key] + laplaceAlpha;
       if (target <= count) {
@@ -159,9 +288,19 @@ export default class Solver<M, S> {
       }
       target -= count;
     }
+
+    // in theory, this can not happen
     return Solver.chooseRandom(keys);
   }
 
+  /**
+   * Returns an array of values to be considered as the next value for a model
+   * domain.
+   *
+   * @param domains model domains
+   * @param key key to be searched for values
+   * @private
+   */
   private getNextValuesForKey(domains: ModelDomains, key: string): any[] {
     let currentIndex = domains[key].index;
     let currentValues = domains[key].values;
@@ -176,6 +315,13 @@ export default class Solver<M, S> {
     return currentValues.slice(start, end);
   }
 
+  /**
+   * Checks if two models have equal keys and values.
+   *
+   * @param model0 first model
+   * @param model1 second model
+   * @private
+   */
   private static modelsEqual(model0: any, model1: any): boolean {
     for (let key of Object.keys(model0)) {
       if (typeof model0[key] == 'object') {
@@ -189,6 +335,13 @@ export default class Solver<M, S> {
     return true;
   }
 
+  /**
+   * Checks if a model is already in an array of solutions.
+   *
+   * @param solutions solutions
+   * @param model model
+   * @private
+   */
   private isModelInSolutions(solutions: M[], model: M): boolean {
     for (let solution of solutions) {
       if (Solver.modelsEqual(solution, model)) {
@@ -198,6 +351,16 @@ export default class Solver<M, S> {
     return false;
   }
 
+  /**
+   * Returns an array of models to be considered as the next best model, along
+   * with their preference value.
+   *
+   * @param solutions current solutions
+   * @param domains model domains
+   * @param key key to be changed for the next models
+   * @param nextValues array of possible next values for the key
+   * @private
+   */
   private getNextModels(
     solutions: M[],
     domains: ModelDomains,
@@ -218,6 +381,15 @@ export default class Solver<M, S> {
     return res;
   }
 
+  /**
+   * Returns the next best model given a current model, state and solutions.
+   *
+   * @param solutions current solutions
+   * @param domains model domains
+   * @param currentModel current model
+   * @param state state
+   * @private
+   */
   private getNextBestModel(
     solutions: M[],
     domains: ModelDomains,
@@ -249,25 +421,41 @@ export default class Solver<M, S> {
    * @private
    */
   private static chooseRandom<T>(values: T[]): T {
-    return values[Math.floor(RandomNumberGenerator.getValue() * values.length)];
+    return values[Math.floor(RandomUtils.unsignedFloat() * values.length)];
   }
 
+  /**
+   * Returns the model with the minimum amount of conflicts (heuristic) and
+   * factors in the preference value.
+   *
+   * @param models models to be considered
+   * @param state state
+   * @private
+   */
   private minConflicts(
     models: {preference: number; model: M}[],
     state: S
   ): {preference: number; model: M} | null {
+
     // To avoid local maximums and plateaus, choose completely random sometimes
-    if (RandomNumberGenerator.getValue() < this.config.randomnessFactor) {
+    if (RandomUtils.unsignedFloat() < this.config.randomnessFactor) {
       return Solver.chooseRandom(models);
     }
 
     let bestModel: {preference: number; model: M} | null = null;
     let bestScore: number = 0;
+
+    // choose the model with the best score
     for (let instance of models) {
+
+      // calculate score based on number of conflicts
       let score = this.getLogScore(instance.model, state);
+
+      // factor in the preference value
       score +=
         (instance.preference / Domain.maxPreference) *
         this.config.preferenceFactor;
+
       if (score > bestScore) {
         bestScore = score;
         bestModel = instance;
@@ -276,6 +464,13 @@ export default class Solver<M, S> {
     return bestModel;
   }
 
+  /**
+   * Returns the maximum look ahead value based on the size of the largest
+   * domain.
+   *
+    * @param domains model domains
+   * @private
+   */
   private static getMaxLookAhead(domains: ModelDomains): number {
     let maxLength = 0;
     for (let key of Object.keys(domains)) {
@@ -287,40 +482,71 @@ export default class Solver<M, S> {
     return maxLength * 2;
   }
 
-  find(
+  /**
+   * Searches for solutions with a given configuration. Returns an array of
+   * solutions as well as the number of iterations it took to find them.
+   *
+   * @param maxSolutions maximum number of solutions to be found before stopping
+   * @param modelDomain model domain to be searched
+   * @param state state
+   * @param config solver configuration
+   */
+  solve(
     maxSolutions: number,
     modelDomain: ModelDomain,
     state: S,
     config?: SolverConfig
-  ): M[] {
+  ): { iterations: number, solutions: M[] } {
     if (!!config) {
       this.initConfig(config);
     }
     let domains = Solver.getModelDomains(modelDomain);
+
+    // nothing configured, so use the largest domain size as default
     if (this.config.lookAheadModels < 0) {
       this.config.lookAheadModels = Solver.getMaxLookAhead(domains);
     }
+
     let max = Math.max(1, maxSolutions);
-    console.log('consys-solver: Starting search with config: ', this.config);
     let res: M[] = [];
+
+    // start with a random model
+    Solver.randomizeModel(domains);
     let currentModel: M | null = this.getCurrentModel(domains);
     let iterations = 0;
     for (let i = 0; i < this.config.maxIterations && res.length < max; i++) {
       if (!!currentModel) {
         if (this.isModelConsistent(currentModel, state)) {
           res.push(currentModel);
+
+          // when we found a solution, start again with random values
+          Solver.randomizeModel(domains);
         }
         currentModel = this.getNextBestModel(res, domains, currentModel, state);
       }
       iterations++;
     }
-    console.log(
-      'consys-solver: Found ',
-      res.length,
-      ' solution(s) after ',
-      iterations,
-      ' iterations'
-    );
-    return res;
+    return {
+      iterations: iterations,
+      solutions: res
+    };
+  }
+
+  /**
+   * Searches for solutions with a given configuration. Returns an array of
+   * solutions.
+   *
+   * @param maxSolutions maximum number of solutions to be found before stopping
+   * @param modelDomain model domain to be searched
+   * @param state state
+   * @param config solver configuration
+   */
+  find(
+    maxSolutions: number,
+    modelDomain: ModelDomain,
+    state: S,
+    config?: SolverConfig
+  ): M[] {
+    return this.solve(maxSolutions, modelDomain, state, config).solutions;
   }
 }

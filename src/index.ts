@@ -1,6 +1,12 @@
 /* istanbul ignore file */
 import Solver from './Solver';
-import Range from './domains/Range';
+import Domain from "./Domain";
+import Constant from "./Constant";
+import Range from './Range';
+import Set from "./Set";
 
 export {Solver};
+export {Domain};
+export {Constant};
 export {Range};
+export {Set};
