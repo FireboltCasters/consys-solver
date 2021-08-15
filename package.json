@@ -1,7 +1,7 @@
 {
   "name": "consys-solver",
-  "version": "0.0.5",
-  "description": "consys-solver finds feasible models for consys constraints.",
+  "version": "1.0.0",
+  "description": "consys-solver is a tool to find feasable model assignments for consys constraint systems.",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
@@ -26,7 +26,11 @@
   },
   "keywords": [
     "consys",
-    "solver"
+    "solver",
+    "solution",
+    "model",
+    "constraints",
+    "constraint"
   ],
   "author": "Steffen Droppelmann",
   "contributors": [
