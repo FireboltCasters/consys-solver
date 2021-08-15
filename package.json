@@ -1,6 +1,6 @@
 {
   "name": "consys-solver",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "consys-solver is a tool to find feasable model assignments for consys constraint systems.",
   "main": "index.js",
   "types": "index.d.ts",
