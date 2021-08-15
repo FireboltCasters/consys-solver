@@ -24,35 +24,16 @@ system.addFunction(
   (string: string, prefix: string) => string.startsWith(prefix)
 );
 
-system.addConstraint({
-  constraint: 'ALWAYS: $age % 5 == 0 && $age != 0',
-});
+system.addConstraints([
+  {constraint: 'ALWAYS: $age % 5 == 0 && $age != 0'},
+  {constraint: 'ALWAYS: $age < $maxAge'},
+  {constraint: 'ALWAYS: ($maxAge + $absoluteMaxAge) % 8 == 0'},
+  {constraint: 'ALWAYS: $age + $maxAge == $absoluteMaxAge'},
+  {constraint: 'ALWAYS: $age % $maxAge > $nested.number && $nested.number > 0'},
+  {constraint: "ALWAYS: STARTS_WITH($name, 'N')"},
+]);
 
-system.addConstraint({
-  constraint: 'ALWAYS: $age < $maxAge',
-});
-
-system.addConstraint({
-  constraint: 'ALWAYS: ($maxAge + $absoluteMaxAge) % 8 == 0',
-});
-
-system.addConstraint({
-  constraint: 'ALWAYS: $age + $maxAge == $absoluteMaxAge',
-});
-
-system.addConstraint({
-  constraint: 'ALWAYS: $age % $maxAge > $nested.number && $nested.number > 0',
-});
-
-system.addConstraint({
-  constraint: "ALWAYS: STARTS_WITH($name, 'N')",
-});
-
-const solver = new Solver<Model, {}>(
-  system, {
-    lookAheadModels: 400
-  }
-);
+const solver = new Solver<Model, {}>(system, { lookAheadModels: 400 });
 
 let modelHint = {
   name: new Set(
@@ -178,15 +159,12 @@ test('SolverTest', () => {
   console.table(result.config);
   console.table(result.result);
 
-  let solutions = solver.find(1, modelHint, {}, {
+  let solutions = solver.find(2, modelHint, {}, {
     maxIterations: 10000,
     randomnessFactor: 0.3,
     preferenceFactor: 0.1
   });
 
+  expect(solutions.length).toBe(2);
   console.log("Found " + solutions.length + " solutions: ", solutions);
-
-  expect(() => {
-    throw Error();
-  }).toThrowError();
 });

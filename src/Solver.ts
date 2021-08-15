@@ -266,7 +266,7 @@ export default class Solver<M, S> {
    * @param keyCounts key counts
    * @private
    */
-  chooseKey(keyCounts: {[key: string]: number}): string {
+  private static chooseKey(keyCounts: {[key: string]: number}): string {
 
     // apply laplace smoothing, since counts can be 0
     const laplaceAlpha = 0.1;
@@ -398,7 +398,7 @@ export default class Solver<M, S> {
   ): M | null {
     let statisticsReport = this.system.evaluateStatistics(currentModel, state);
     let keyInfluences = statisticsReport.inconsistent.model;
-    let nextKey = this.chooseKey(keyInfluences);
+    let nextKey = Solver.chooseKey(keyInfluences);
     let nextValuesForKey = this.getNextValuesForKey(domains, nextKey);
     let nextModels = this.getNextModels(
       solutions,
