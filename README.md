@@ -34,7 +34,7 @@
 - **Preferred values:** Assign weights to domain values to increase the likelyhood of a solution with those values.
 - **Configurable:** In order to optimize the search process, the solver can be configured to get the best results.
 
-The implementation is based on a modified [min-conflicts](https://en.wikipedia.org/wiki/Min-conflicts_algorithm) heuristic, where variables are not chosen randomly, but with a weighted probability determined by the number of occurrences in the constraint set. In addition, a preference factor is considered when calculating the score of a model, which allows the user to prefer certain values of a domain. 
+The implementation is based on a modified [min-conflicts](https://en.wikipedia.org/wiki/Min-conflicts_algorithm) heuristic, where variables are not chosen randomly, but with a weighted probability determined by the number of occurrences in the constraint set. In addition, a preference factor is considered when calculating the score of a model, which allows the user to prefer certain values of a domain.
 
 ## Installation
 
