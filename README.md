@@ -1,4 +1,4 @@
-<h1><a href="https://www.npmjs.com/package/consys-solver"><img src="https://user-images.githubusercontent.com/37511270/127232757-a7fcfdbf-44d1-429a-8531-41a3d0d9e40d.png" width="50" heigth="50" /></a><a href="https://www.npmjs.com/package/consys-solver">consys-solver</a> - find feasible model assignments</h1>
+<h1><a href="https://www.npmjs.com/package/consys-solver"><img src="https://user-images.githubusercontent.com/37511270/129480573-653f8123-780c-499e-a1a7-e3920684eb7c.png" width="50" heigth="50" /></a><a href="https://www.npmjs.com/package/consys-solver">consys-solver</a> - find feasible model assignments</h1>
 
 <p align="left">
   <a href="https://badge.fury.io/js/consys-solver.svg"><img src="https://badge.fury.io/js/consys-solver.svg" alt="npm package" /></a>
