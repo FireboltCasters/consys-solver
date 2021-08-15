@@ -28,7 +28,7 @@
   <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=vulnerabilities" alt="Vulnerabilities" /></a>
 </p>
 
-**consys-solver** is a tool to find feasable model assignments for [consys](https://www.npmjs.com/package/consys) constraint systems.
+**consys-solver** is a tool to find feasible model assignments for [consys](https://www.npmjs.com/package/consys) constraint systems.
 
 - **Easy to integrate:** This solver acts as a decorator, it just requires an instance of an existing constraint system to work.
 - **Preferred values:** Assign weights to domain values to increase the likelyhood of a solution with those values.
