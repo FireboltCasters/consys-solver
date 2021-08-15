@@ -30,9 +30,9 @@
 
 **consys-solver** is a tool to find feasable model assignments for [consys](https://www.npmjs.com/package/consys) constraint systems.
 
- - **Easy to integrate:** This solver acts as a decorator, it just requires an instance of an existing constraint system to work.
- - **Preferred values:** Assign weights to domain values to increase the likelyhood of a solution with those values.
- - **Configurable:** In order to optimize the search process, the solver can be configured to get the best results.
+- **Easy to integrate:** This solver acts as a decorator, it just requires an instance of an existing constraint system to work.
+- **Preferred values:** Assign weights to domain values to increase the likelyhood of a solution with those values.
+- **Configurable:** In order to optimize the search process, the solver can be configured to get the best results.
 
 ## Installation
 
@@ -47,19 +47,19 @@ npm install consys-solver
 Once installed, a solver instance can be instantiated for an existing constraint system. Here is an example:
 
 ```typescript
-import { ConstraintSystem } from "consys";
-import { Solver, Set, Range } from "consys-solver";
+import {ConstraintSystem} from 'consys';
+import {Solver, Set, Range} from 'consys-solver';
 
-type Person = { name: string, age: number };
+type Person = {name: string; age: number};
 
 // Create a simple constraint system for a Person model
 const personConstraints = new ConstraintSystem<Person, {}>();
 personConstraints.addFunction('LENGTH', (str: string) => {
-    return str.length;
+  return str.length;
 });
 personConstraints.addConstraints([
-    { constraint: "ALWAYS: LENGTH($name) < 6" },
-    { constraint: "ALWAYS: $age > 21 && $age < 42" },
+  {constraint: 'ALWAYS: LENGTH($name) < 6'},
+  {constraint: 'ALWAYS: $age > 21 && $age < 42'},
 ]);
 
 // Now, we can create a solver instance
@@ -67,14 +67,14 @@ const solver = new Solver(personConstraints);
 
 let names = ['Mike', 'Peter', 'Lara', 'Isabelle'];
 let personDomains = {
-    // A set with higher preference for long names
-    name: new Set(names, (name: string) => {
-        return name.length;
-    }),
-    // Number range with preference for higher age
-    age: new Range(0, 100, 1, (age: number) => {
-        return age / 10;
-    }),
+  // A set with higher preference for long names
+  name: new Set(names, (name: string) => {
+    return name.length;
+  }),
+  // Number range with preference for higher age
+  age: new Range(0, 100, 1, (age: number) => {
+    return age / 10;
+  }),
 };
 
 // Finally, search for one solution
@@ -82,7 +82,7 @@ let solution = solver.find(1, personDomains, {});
 console.log('Solution: ', solution);
 ```
 
-Output: 
+Output:
 
 ```console
 >> Solution:  [ { name: 'Peter', age: 41 } ]
