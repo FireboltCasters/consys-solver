@@ -256,19 +256,21 @@ export default class Solver<M, S> {
   /**
    * Randomly chooses a key based on their counts as weights.
    *
+   * @param domains key domains
    * @param keyCounts key counts
    * @private
    */
-  private static chooseKey(keyCounts: {[key: string]: number}): string {
+  private static chooseKey(domains: ModelDomains, keyCounts: {[key: string]: number}): string {
     // apply laplace smoothing, since counts can be 0
     const laplaceAlpha = 0.1;
 
-    let keys = Object.keys(keyCounts);
+    let keys = Object.keys(domains);
     Solver.shuffle(keys);
 
-    let totalCount =
-      Object.values(keyCounts).reduce((a, b) => a + b) +
-      laplaceAlpha * keys.length;
+    let totalCount = laplaceAlpha * keys.length;
+    for (let key of keys) {
+      totalCount += !!keyCounts[key] ? keyCounts[key] : 0;
+    }
 
     // random value between 1 and total amount of keys
     let target = RandomUtils.unsignedFloat() * (totalCount - 1) + 1;
@@ -390,7 +392,7 @@ export default class Solver<M, S> {
   ): M | null {
     let statisticsReport = this.system.evaluateStatistics(currentModel, state);
     let keyInfluences = statisticsReport.inconsistent.model;
-    let nextKey = Solver.chooseKey(keyInfluences);
+    let nextKey = Solver.chooseKey(domains, keyInfluences);
     let nextValuesForKey = this.getNextValuesForKey(domains, nextKey);
     let nextModels = this.getNextModels(
       solutions,
