@@ -135,7 +135,7 @@ test('SolverTest', () => {
     maxIterations: 10000,
     randomnessFactor: 0.3,
     preferenceFactor: 0.1,
-    maxSolutions: 10,
+    maxSolutions: 5,
     n: 5,
   });
 
