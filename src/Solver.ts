@@ -260,7 +260,10 @@ export default class Solver<M, S> {
    * @param keyCounts key counts
    * @private
    */
-  private static chooseKey(domains: ModelDomains, keyCounts: {[key: string]: number}): string {
+  private static chooseKey(
+    domains: ModelDomains,
+    keyCounts: {[key: string]: number}
+  ): string {
     // apply laplace smoothing, since counts can be 0
     const laplaceAlpha = 0.1;
 
