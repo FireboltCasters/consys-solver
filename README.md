@@ -1,4 +1,4 @@
-<h1><a href="https://www.npmjs.com/package/consys-solver"><img src="https://user-images.githubusercontent.com/37511270/127232757-a7fcfdbf-44d1-429a-8531-41a3d0d9e40d.png" width="50" heigth="50" /></a><a href="https://www.npmjs.com/package/consys-solver">consys-solver</a> - find feasible model assignments</h1>
+<h1><a href="https://www.npmjs.com/package/consys-solver"><img src="https://user-images.githubusercontent.com/37511270/129480573-653f8123-780c-499e-a1a7-e3920684eb7c.png" width="50" heigth="50" /></a><a href="https://www.npmjs.com/package/consys-solver">consys-solver</a> - find feasible model assignments</h1>
 
 <p align="left">
   <a href="https://badge.fury.io/js/consys-solver.svg"><img src="https://badge.fury.io/js/consys-solver.svg" alt="npm package" /></a>
@@ -28,11 +28,13 @@
   <a href="https://sonarcloud.io/dashboard?id=FireboltCasters_consys-solver"><img src="https://sonarcloud.io/api/project_badges/measure?project=FireboltCasters_consys-solver&metric=vulnerabilities" alt="Vulnerabilities" /></a>
 </p>
 
-**consys-solver** is a tool to find feasable model assignments for [consys](https://www.npmjs.com/package/consys) constraint systems.
+**consys-solver** is a tool to find feasible model assignments for [consys](https://www.npmjs.com/package/consys) constraint systems.
 
 - **Easy to integrate:** This solver acts as a decorator, it just requires an instance of an existing constraint system to work.
 - **Preferred values:** Assign weights to domain values to increase the likelyhood of a solution with those values.
 - **Configurable:** In order to optimize the search process, the solver can be configured to get the best results.
+
+The implementation is based on a modified [min-conflicts](https://en.wikipedia.org/wiki/Min-conflicts_algorithm) heuristic, where variables are not chosen randomly, but with a weighted probability determined by the number of occurrences in the constraint set. In addition, a preference factor is considered when calculating the score of a model, which allows the user to prefer certain values of a domain.
 
 ## Installation
 
