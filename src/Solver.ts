@@ -32,6 +32,9 @@ export interface ModelDomain {
  * @param maxIterations Maximum number of iterations until the algorithm stops.
  * The default number is 10000 iterations.
  *
+ * @param retryIterations The number of iterations until the algorithm starts
+ * again with random values. Useful to get the algorithm out of dead ends.
+ *
  * @param lookAheadModels Determines how many models should be considered for
  * the next iteration. Set to the maximum domain size by default.
  *
@@ -49,6 +52,7 @@ export interface ModelDomain {
  */
 export interface SolverConfig {
   maxIterations?: number;
+  retryIterations?: number;
   lookAheadModels?: number;
   randomnessFactor?: number;
   preferenceFactor?: number;
@@ -65,6 +69,7 @@ export default class Solver<M, S> {
   // default configuration
   private readonly config = {
     maxIterations: 10000,
+    retryIterations: 2000,
     lookAheadModels: -1,
     randomnessFactor: 0.3,
     preferenceFactor: 0.1,
@@ -92,6 +97,9 @@ export default class Solver<M, S> {
   private initConfig(config: SolverConfig) {
     if (config.maxIterations !== undefined) {
       this.config.maxIterations = Math.max(0, config.maxIterations);
+    }
+    if (config.retryIterations !== undefined) {
+      this.config.retryIterations = Math.max(0, config.retryIterations);
     }
     if (config.lookAheadModels !== undefined) {
       this.config.lookAheadModels = Math.max(0, config.lookAheadModels);
@@ -227,6 +235,44 @@ export default class Solver<M, S> {
     return (
       1.0 / (1.0 + this.system.getNumInconsistentConstraints(model, state))
     );
+  }
+
+  /**
+   * Returns a normalized preference score from 0 to 1
+   *
+   * @param preference preference of the domain value
+   * @private
+   */
+  private getPreferenceScore(preference: number): number {
+    return (1 - this.config.preferenceFactor) +
+      (preference / Domain.maxPreference) * this.config.preferenceFactor;
+  }
+
+  /**
+   * Calculates the harmonic mean of the log score and preference score. This
+   * penalizes low values for the log score, as well as low values for the
+   * preference score. Only if both values are high, the harmonic mean will be
+   * high as well.
+   *
+   * @param logScore log score
+   * @param prefScore preference score
+   * @private
+   */
+  private static getHarmonicMean(logScore: number, prefScore: number): number {
+    return 2 * logScore * prefScore / (logScore + prefScore);
+  }
+
+  /**
+   * Calculates the total score of a given model and state.
+   *
+   * @param instance model with preference value
+   * @param state state
+   * @private
+   */
+  private getScore(instance: {preference: number; model: M}, state: S): number {
+    let logScore = this.getLogScore(instance.model, state);
+    let prefScore = this.getPreferenceScore(instance.preference);
+    return Solver.getHarmonicMean(logScore, prefScore);
   }
 
   /**
@@ -441,13 +487,7 @@ export default class Solver<M, S> {
     // choose the model with the best score
     for (let instance of models) {
       // calculate score based on number of conflicts
-      let score = this.getLogScore(instance.model, state);
-
-      // factor in the preference value
-      score +=
-        (instance.preference / Domain.maxPreference) *
-        this.config.preferenceFactor;
-
+      let score = this.getScore(instance, state);
       if (score > bestScore) {
         bestScore = score;
         bestModel = instance;
@@ -505,8 +545,11 @@ export default class Solver<M, S> {
     // start with a random model
     Solver.randomizeModel(domains);
     let currentModel: M | null = this.getCurrentModel(domains);
-    let iterations = 0;
+    let iterations = 1;
     for (let i = 0; i < this.config.maxIterations && res.length < max; i++) {
+      if (iterations % this.config.retryIterations === 0) {
+        Solver.randomizeModel(domains);
+      }
       if (!!currentModel) {
         if (this.isModelConsistent(currentModel, state)) {
           res.push(currentModel);

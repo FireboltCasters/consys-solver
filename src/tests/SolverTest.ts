@@ -54,6 +54,7 @@ let modelHint = {
 
 const benchmark = (config: {
   maxIterations: number;
+  retryIterations: number;
   randomnessFactor: number;
   preferenceFactor: number;
   maxSolutions: number;
@@ -81,6 +82,7 @@ const benchmark = (config: {
         {},
         {
           maxIterations: config.maxIterations,
+          retryIterations: config.retryIterations,
           randomnessFactor: config.randomnessFactor,
           preferenceFactor: config.preferenceFactor,
         }
@@ -133,8 +135,9 @@ const benchmark = (config: {
 test('SolverTest', () => {
   let result = benchmark({
     maxIterations: 10000,
+    retryIterations: 2000,
     randomnessFactor: 0.3,
-    preferenceFactor: 0.1,
+    preferenceFactor: 0.5,
     maxSolutions: 5,
     n: 5,
   });
@@ -148,6 +151,7 @@ test('SolverTest', () => {
     {},
     {
       maxIterations: 10000,
+      retryIterations: 2000,
       randomnessFactor: 0.3,
       preferenceFactor: 0.1,
     }
