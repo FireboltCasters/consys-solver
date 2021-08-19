@@ -57,7 +57,6 @@ const benchmark = (config: {
   retryIterations: number;
   randomnessFactor: number;
   preferenceFactor: number;
-  preferenceLowerBound: number;
   maxSolutions: number;
   n: number;
 }) => {
@@ -86,7 +85,6 @@ const benchmark = (config: {
           retryIterations: config.retryIterations,
           randomnessFactor: config.randomnessFactor,
           preferenceFactor: config.preferenceFactor,
-          preferenceLowerBound: config.preferenceLowerBound
         }
       );
       counts[i].iterations.push(res.iterations);
@@ -140,7 +138,6 @@ test('SolverTest', () => {
     retryIterations: 2000,
     randomnessFactor: 0.3,
     preferenceFactor: 0.5,
-    preferenceLowerBound: 0,
     maxSolutions: 5,
     n: 5,
   });
@@ -157,7 +154,6 @@ test('SolverTest', () => {
       retryIterations: 2000,
       randomnessFactor: 0.3,
       preferenceFactor: 0.1,
-      preferenceLowerBound: 0
     }
   );
 
