@@ -244,8 +244,11 @@ export default class Solver<M, S> {
    * @private
    */
   private getPreferenceScore(preference: number): number {
-    return (1 - this.config.preferenceFactor) +
-      (preference / Domain.maxPreference) * this.config.preferenceFactor;
+    return (
+      1 -
+      this.config.preferenceFactor +
+      (preference / Domain.maxPreference) * this.config.preferenceFactor
+    );
   }
 
   /**
@@ -259,7 +262,7 @@ export default class Solver<M, S> {
    * @private
    */
   private static getHarmonicMean(logScore: number, prefScore: number): number {
-    return 2 * logScore * prefScore / (logScore + prefScore);
+    return (2 * logScore * prefScore) / (logScore + prefScore);
   }
 
   /**
