@@ -80,7 +80,7 @@ export default class Solver<M, S> {
     lookAheadModels: -1,
     randomnessFactor: 0.3,
     preferenceFactor: 0.1,
-    preferenceLowerBound: 0
+    preferenceLowerBound: 0,
   };
 
   /**
@@ -432,7 +432,10 @@ export default class Solver<M, S> {
       let model = this.getCurrentModel(domains);
       Solver.insertValue(model, key, nextValue);
       let preference = domains[key].preference(nextValue);
-      if (!this.isModelInSolutions(solutions, model) && preference >= this.config.preferenceLowerBound) {
+      if (
+        !this.isModelInSolutions(solutions, model) &&
+        preference >= this.config.preferenceLowerBound
+      ) {
         res.push({
           preference: preference,
           model: model,
