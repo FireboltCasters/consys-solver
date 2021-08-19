@@ -49,6 +49,12 @@ export interface ModelDomain {
  * iteration. A value of 0.0 means that preferences are not considered, whereas
  * a value of 1.0 means that they heavily influence the decision. The default
  * value is 0.1.
+ *
+ * @param preferenceLowerBound Value between 0 and 10, determines at which
+ * preference value a model is considered feasible. The bound is inclusive,
+ * meaning that models with preference 4 and bound 4 are feasible, while they
+ * are infeasible with a bound of 5. The default value is 0, meaning every
+ * preference value is feasible.
  */
 export interface SolverConfig {
   maxIterations?: number;
@@ -56,6 +62,7 @@ export interface SolverConfig {
   lookAheadModels?: number;
   randomnessFactor?: number;
   preferenceFactor?: number;
+  preferenceLowerBound?: number;
 }
 
 /**
@@ -73,6 +80,7 @@ export default class Solver<M, S> {
     lookAheadModels: -1,
     randomnessFactor: 0.3,
     preferenceFactor: 0.1,
+    preferenceLowerBound: 0
   };
 
   /**
@@ -116,6 +124,12 @@ export default class Solver<M, S> {
       this.config.preferenceFactor = Math.max(
         0,
         Math.min(config.preferenceFactor, 1)
+      );
+    }
+    if (config.preferenceLowerBound !== undefined) {
+      this.config.preferenceLowerBound = Math.max(
+        0,
+        Math.min(config.preferenceLowerBound, 10)
       );
     }
   }
@@ -282,7 +296,7 @@ export default class Solver<M, S> {
    * @param state state to be checked
    * @private
    */
-  private isModelConsistent(model: M, state: S): boolean {
+  private isModelFeasible(model: M, state: S): boolean {
     return this.system.getNumInconsistentConstraints(model, state) === 0;
   }
 
@@ -414,9 +428,10 @@ export default class Solver<M, S> {
     for (let nextValue of nextValues) {
       let model = this.getCurrentModel(domains);
       Solver.insertValue(model, key, nextValue);
-      if (!this.isModelInSolutions(solutions, model)) {
+      let preference = domains[key].preference(nextValue);
+      if (!this.isModelInSolutions(solutions, model) && preference >= this.config.preferenceLowerBound) {
         res.push({
-          preference: domains[key].preference(nextValue),
+          preference: preference,
           model: model,
         });
       }
@@ -554,7 +569,7 @@ export default class Solver<M, S> {
         Solver.randomizeModel(domains);
       }
       if (!!currentModel) {
-        if (this.isModelConsistent(currentModel, state)) {
+        if (this.isModelFeasible(currentModel, state)) {
           res.push(currentModel);
 
           // when we found a solution, start again with random values
