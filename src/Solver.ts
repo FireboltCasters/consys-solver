@@ -444,16 +444,21 @@ export default class Solver<M, S> {
     currentModel: M,
     state: S
   ): M | null {
+    // for each variable value the amount of inconsistent constraints it is in
     let statisticsReport = this.system.evaluateStatistics(currentModel, state);
     let keyInfluences = statisticsReport.inconsistent.model;
+    // choose next variable to generate values for
     let nextKey = Solver.chooseKey(domains, keyInfluences);
+    // generate the next values for the variable
     let nextValuesForKey = this.getNextValuesForKey(domains, nextKey);
+    // from the next values, generate new models
     let nextModels = this.getNextModels(
       solutions,
       domains,
       nextKey,
       nextValuesForKey
     );
+    // from the new models, get the one with the minimum conflicts
     let bestModel = this.minConflicts(nextModels, state);
     if (!bestModel) {
       return null;
@@ -522,6 +527,23 @@ export default class Solver<M, S> {
     return maxLength * 2;
   }
 
+  private static initializePreferredDomains(domains: ModelDomains) {
+    for (let key of Object.keys(domains)) {
+      let domain = domains[key];
+      let bestIndex = 0;
+      let bestPreference = Number.MIN_VALUE;
+      for (let i = 0; i < domain.values.length; i++) {
+        const value = domain.values[i];
+        const preference = domain.preference(value);
+        if (preference > bestPreference) {
+          bestPreference = preference;
+          bestIndex = i;
+        }
+      }
+      domain.index = bestIndex;
+    }
+  }
+
   /**
    * Searches for solutions with a given configuration. Returns an array of
    * solutions as well as the number of iterations it took to find them.
@@ -550,8 +572,8 @@ export default class Solver<M, S> {
     let max = Math.max(1, maxSolutions);
     let res: M[] = [];
 
-    // start with a random model
-    Solver.randomizeModel(domains);
+    // start with the preferred model
+    Solver.initializePreferredDomains(domains);
     let currentModel: M | null = this.getCurrentModel(domains);
     let iterations = 1;
     for (let i = 0; i < this.config.maxIterations && res.length < max; i++) {
@@ -562,10 +584,12 @@ export default class Solver<M, S> {
         if (this.isModelFeasible(currentModel, state)) {
           res.push(currentModel);
 
-          // when we found a solution, start again with random values
-          Solver.randomizeModel(domains);
+          // when we found a solution, start again with preferred values
+          Solver.initializePreferredDomains(domains);
+          currentModel = this.getCurrentModel(domains);
+        } else {
+          currentModel = this.getNextBestModel(res, domains, currentModel, state);
         }
-        currentModel = this.getNextBestModel(res, domains, currentModel, state);
       }
       iterations++;
     }

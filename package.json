@@ -63,6 +63,6 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "consys": "^1.0.12"
+    "consys": "^1.2.1"
   }
 }
