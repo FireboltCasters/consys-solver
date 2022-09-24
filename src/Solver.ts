@@ -73,7 +73,7 @@ export default class Solver<M, S> {
     retryIterations: 2000,
     lookAheadModels: -1,
     randomnessFactor: 0.3,
-    preferenceFactor: 0.1
+    preferenceFactor: 0.1,
   };
 
   /**
