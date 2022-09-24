@@ -588,7 +588,12 @@ export default class Solver<M, S> {
           Solver.initializePreferredDomains(domains);
           currentModel = this.getCurrentModel(domains);
         } else {
-          currentModel = this.getNextBestModel(res, domains, currentModel, state);
+          currentModel = this.getNextBestModel(
+            res,
+            domains,
+            currentModel,
+            state
+          );
         }
       }
       iterations++;
